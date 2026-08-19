@@ -7,9 +7,10 @@
 <title>Tayside Shortlist</title>
 <style>
   :root {
-    --ground:#eceff2; --surface:#ffffff; --ink:#14202a; --muted:#5b6b78;
-    --faint:#8494a0; --rule:#d4dbe1; --rule-soft:#e3e8ec;
-    --accent:#1b5a70; --accent-sf:#e2eef2;
+    --ground:#eceff2; --surface:#ffffff; --sunk:#e4e8ec;
+    --ink:#14202a; --muted:#5b6b78; --faint:#8494a0;
+    --rule:#d4dbe1; --rule-soft:#e3e8ec;
+    --accent:#1b5a70; --accent-sf:#e2eef2; --chip-fg:#465767;
     --fresh:#1d5f4a; --fresh-sf:#ddefe7;
     --urgent:#9d3520; --urgent-sf:#f6e4df;
     --soon:#7d5410; --soon-sf:#f4ebd9;
@@ -19,18 +20,20 @@
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --ground:#0e161d; --surface:#16212b; --ink:#e6ecf0; --muted:#97a6b2;
-      --faint:#6f8090; --rule:#27343f; --rule-soft:#1f2b35;
-      --accent:#74b8ce; --accent-sf:#173039;
+      --ground:#0e161d; --surface:#16212b; --sunk:#111b23;
+      --ink:#e6ecf0; --muted:#97a6b2; --faint:#6f8090;
+      --rule:#27343f; --rule-soft:#1f2b35;
+      --accent:#74b8ce; --accent-sf:#173039; --chip-fg:#c3d0da;
       --fresh:#7ec9ac; --fresh-sf:#153027;
       --urgent:#e79178; --urgent-sf:#3a201a;
       --soon:#d9ac62; --soon-sf:#332815;
     }
   }
   :root[data-theme="dark"] {
-    --ground:#0e161d; --surface:#16212b; --ink:#e6ecf0; --muted:#97a6b2;
-    --faint:#6f8090; --rule:#27343f; --rule-soft:#1f2b35;
-    --accent:#74b8ce; --accent-sf:#173039;
+    --ground:#0e161d; --surface:#16212b; --sunk:#111b23;
+    --ink:#e6ecf0; --muted:#97a6b2; --faint:#6f8090;
+    --rule:#27343f; --rule-soft:#1f2b35;
+    --accent:#74b8ce; --accent-sf:#173039; --chip-fg:#c3d0da;
     --fresh:#7ec9ac; --fresh-sf:#153027;
     --urgent:#e79178; --urgent-sf:#3a201a;
     --soon:#d9ac62; --soon-sf:#332815;
@@ -38,77 +41,128 @@
   * { box-sizing:border-box; }
   body { background:var(--ground); color:var(--ink); font-family:var(--sans);
     font-size:16px; line-height:1.5; margin:0;
-    padding:clamp(20px,5vw,56px) clamp(16px,5vw,32px) 64px;
+    padding:clamp(20px,5vw,52px) clamp(16px,5vw,32px) 72px;
     -webkit-font-smoothing:antialiased; }
-  .wrap { max-width:940px; margin:0 auto; display:flex; flex-direction:column; gap:40px; }
+  .wrap { max-width:960px; margin:0 auto; display:flex; flex-direction:column;
+    gap:32px; min-width:0; }
   .masthead { display:flex; flex-direction:column; gap:10px; }
   .eyebrow { font-size:11px; letter-spacing:.16em; text-transform:uppercase;
     color:var(--faint); font-weight:600; }
   h1 { font-family:var(--serif); font-size:clamp(30px,5.5vw,44px); line-height:1.08;
     font-weight:600; margin:0; letter-spacing:-.015em; text-wrap:balance; }
   .standfirst { color:var(--muted); max-width:62ch; margin:0; font-size:15.5px; }
-  .summary { display:grid; gap:1px; grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-    background:var(--rule); border:1px solid var(--rule); border-radius:3px; overflow:hidden; }
-  .stat { background:var(--surface); padding:16px 18px; display:flex;
-    flex-direction:column; gap:3px; }
+
+  .summary { display:grid; gap:1px; grid-template-columns:repeat(auto-fit,minmax(148px,1fr));
+    background:var(--rule); border:1px solid var(--rule); border-radius:4px; overflow:hidden; }
+  .stat { background:var(--surface); padding:15px 18px; display:flex;
+    flex-direction:column; gap:2px; }
   .stat dt { font-size:10.5px; letter-spacing:.13em; text-transform:uppercase;
     color:var(--faint); font-weight:600; margin:0; }
   .stat dd { margin:0; font-family:var(--mono); font-variant-numeric:tabular-nums;
     font-size:21px; font-weight:500; letter-spacing:-.02em; }
   .stat--fresh dd { color:var(--fresh); }
   .stat--alert dd { color:var(--urgent); }
-  .lane { display:flex; flex-direction:column; }
-  .lane__head { display:flex; align-items:baseline; gap:12px; padding-bottom:9px;
-    border-bottom:2px solid var(--ink); }
-  .lane__name { font-family:var(--serif); font-size:19px; font-weight:600; margin:0;
-    letter-spacing:-.01em; }
-  .lane__count { font-family:var(--mono); font-size:12px; color:var(--faint);
-    font-variant-numeric:tabular-nums; margin-left:auto; }
+
+  .toolbar { display:flex; flex-wrap:wrap; gap:10px; align-items:center;
+    background:var(--surface); border:1px solid var(--rule); border-radius:4px;
+    padding:12px 14px; position:sticky; top:0; z-index:5; }
+  .field { display:flex; align-items:center; gap:7px; min-width:0; }
+  .field label { font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--faint); font-weight:600; }
+  input[type="search"], select { font-family:var(--sans); font-size:14px;
+    color:var(--ink); background:var(--sunk); border:1px solid var(--rule);
+    border-radius:3px; padding:7px 10px; max-width:100%; min-width:0; }
+  /* a select is as wide as its longest option unless told otherwise */
+  select { width:100%; text-overflow:ellipsis; }
+  input[type="search"] { flex:1 1 150px; }
+  input[type="search"]:focus-visible, select:focus-visible, button:focus-visible,
+  .role__title a:focus-visible {
+    outline:2px solid var(--accent); outline-offset:2px; }
+  .count { margin-left:auto; font-family:var(--mono); font-size:12px;
+    color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .reset { font-family:var(--sans); font-size:12.5px; color:var(--accent);
+    background:none; border:none; cursor:pointer; padding:4px 2px;
+    text-decoration:underline; }
+  .reset[hidden] { display:none; }
+
+  .list { display:flex; flex-direction:column; }
   .role { display:grid; grid-template-columns:minmax(0,1fr) auto;
-    grid-template-areas:"id meta"; gap:6px 28px; align-items:start;
-    padding:17px 2px 16px; border-bottom:1px solid var(--rule-soft); }
-  .role__id { grid-area:id; display:flex; flex-direction:column; gap:5px; min-width:0; }
+    grid-template-areas:"id meta"; gap:8px 28px; align-items:start;
+    padding:18px 2px 17px; border-bottom:1px solid var(--rule-soft); }
+  .role[hidden] { display:none; }
+  .role__id { grid-area:id; display:flex; flex-direction:column; gap:6px; min-width:0; }
   .role__meta { grid-area:meta; display:flex; flex-direction:column;
-    align-items:flex-end; gap:6px; text-align:right; white-space:nowrap; }
-  .role__title { font-size:16.5px; font-weight:600; line-height:1.32; letter-spacing:-.005em; }
-  .role__title a { color:var(--ink); text-decoration:none; border-bottom:1px solid var(--rule); }
+    align-items:flex-end; gap:7px; text-align:right; white-space:nowrap;
+    min-width:0; }
+  .role__title { font-size:16.5px; font-weight:600; line-height:1.32;
+    letter-spacing:-.005em; }
+  .role__title a { color:var(--ink); text-decoration:none;
+    border-bottom:1px solid var(--rule); }
   .role__title a:hover { color:var(--accent); border-bottom-color:var(--accent); }
-  .role__title a:focus-visible { outline:2px solid var(--accent); outline-offset:3px;
-    border-radius:2px; }
   .role__where { font-size:13.5px; color:var(--muted); }
   .role__where b { font-weight:600; color:var(--ink); }
   .role__where .sep { color:var(--rule); margin:0 6px; }
   .role__salary { font-family:var(--mono); font-size:13.5px;
     font-variant-numeric:tabular-nums; letter-spacing:-.02em; }
+  .flags { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+  .tag { font-size:11px; color:var(--chip-fg); background:var(--sunk);
+    border:1px solid var(--rule); padding:2px 8px; border-radius:2px; }
+  .flag { font-size:10.5px; letter-spacing:.11em; text-transform:uppercase;
+    font-weight:700; padding:2px 7px; border-radius:2px; }
+  .flag--new { color:var(--fresh); background:var(--fresh-sf);
+    border:1px solid var(--fresh); }
   .chip { font-family:var(--mono); font-size:11px; font-variant-numeric:tabular-nums;
-    letter-spacing:.02em; padding:3px 8px; border-radius:2px;
-    color:var(--muted); background:var(--rule-soft); }
+    padding:3px 8px; border-radius:2px; color:var(--chip-fg); background:var(--rule-soft); }
   .chip--soon { color:var(--soon); background:var(--soon-sf); }
   .chip--urgent { color:var(--urgent); background:var(--urgent-sf); font-weight:600; }
   .chip--closed { color:var(--faint); background:transparent; border:1px solid var(--rule); }
   .role--closed .role__title a, .role--closed .role__salary { color:var(--faint); }
-  .flags { display:flex; flex-wrap:wrap; gap:6px; }
-  .flag { font-size:10.5px; letter-spacing:.11em; text-transform:uppercase;
-    font-weight:700; color:var(--accent); background:var(--accent-sf);
-    padding:2px 7px; border-radius:2px; }
-  .flag--new { color:var(--fresh); background:var(--fresh-sf); border:1px solid var(--fresh); }
-  .note { background:var(--surface); border:1px solid var(--rule); border-radius:3px;
+
+  .empty { padding:44px 20px; text-align:center; color:var(--muted);
+    background:var(--surface); border:1px solid var(--rule); border-radius:4px; }
+  .empty[hidden] { display:none; }
+
+  .pager { display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+    justify-content:center; padding-top:22px; }
+  .pager[hidden] { display:none; }
+  .pager button { font-family:var(--sans); font-size:13.5px; color:var(--ink);
+    background:var(--surface); border:1px solid var(--rule); border-radius:3px;
+    padding:7px 13px; cursor:pointer; font-variant-numeric:tabular-nums; }
+  .pager button:hover:not(:disabled) { border-color:var(--accent); color:var(--accent); }
+  .pager button:disabled { color:var(--faint); cursor:default; opacity:.55; }
+  .pager button[aria-current="true"] { background:var(--accent); color:var(--surface);
+    border-color:var(--accent); font-weight:600; }
+  .pager .gap { color:var(--faint); padding:0 2px; }
+
+  .note { background:var(--surface); border:1px solid var(--rule); border-radius:4px;
     padding:20px 22px; display:flex; flex-direction:column; gap:10px; }
   .note h2 { font-family:var(--serif); font-size:17px; margin:0; font-weight:600; }
   .note p { margin:0; color:var(--muted); font-size:14.5px; max-width:68ch; }
-  .note b { color:var(--ink); font-weight:600; }
   footer { border-top:1px solid var(--rule); padding-top:18px; color:var(--faint);
     font-size:12.5px; display:flex; flex-direction:column; gap:5px; }
-  @media (max-width:620px) {
-    .role { grid-template-columns:minmax(0,1fr); grid-template-areas:"id" "meta"; gap:8px; }
-    .role__meta { flex-direction:row; align-items:center; text-align:left; gap:12px; }
+
+  @media (max-width:640px) {
+    .role { grid-template-columns:minmax(0,1fr); grid-template-areas:"id" "meta"; }
+    .role__meta { flex-direction:row; align-items:center; text-align:left;
+      gap:10px; flex-wrap:wrap; white-space:normal; }
+    .role__salary { overflow-wrap:anywhere; }
+    .toolbar { position:static; }
+    .count { margin-left:0; width:100%; }
+    .field { flex:1 1 100%; }
+  }
+  @media (max-width:380px) {
+    .field { flex-wrap:wrap; }
+    .pager button { padding:6px 10px; font-size:13px; }
+  }
+  @media (prefers-reduced-motion:no-preference) {
+    .role { transition:opacity .12s ease; }
   }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header class="masthead">
-    <div class="eyebrow">Updated 19 August 2026, 06:42 &middot; NHS Scotland &middot; myjobscotland &middot; jobs.ac.uk &middot; Adzuna</div>
+    <div class="eyebrow">Updated 19 August 2026, 07:15 &middot; NHS Scotland &middot; myjobscotland &middot; jobs.ac.uk &middot; Adzuna</div>
     <h1>Tayside Shortlist</h1>
     <p class="standfirst">
       Open roles within reach of Dundee across operations, project delivery,
@@ -118,47 +172,84 @@
   </header>
 
   <dl class="summary">
-    <div class="stat"><dt>Open roles</dt><dd>19</dd></div>
-    <div class="stat stat--fresh"><dt>New this build</dt><dd>1</dd></div>
+    <div class="stat"><dt>Open roles</dt><dd>33</dd></div>
+    <div class="stat stat--fresh"><dt>New this build</dt><dd>15</dd></div>
     <div class="stat stat--alert"><dt>Closing this week</dt><dd id="stat-urgent">&mdash;</dd></div>
-    <div class="stat"><dt>In Dundee itself</dt><dd>6</dd></div>
+    <div class="stat"><dt>In Dundee itself</dt><dd>13</dd></div>
   </dl>
 
-<section class="lane"><div class="lane__head"><h2 class="lane__name">Project &amp; programme delivery</h2><span class="lane__count">5 roles</span></div>
-<article class="role" data-close="" data-posted="2026-07-22"><div class="role__id"><div class="role__title"><a href="https://www.adzuna.co.uk/jobs/details/5810043095?utm_medium=api" rel="noopener">Project Manager</a></div><div class="role__where"><b>Bright Purple Resourcing</b><span class="sep">/</span>St. Andrews, Fife</div></div><div class="role__meta"><span class="role__salary">£51,638</span><span class="chip" data-chip></span></div></article>
-<article class="role" data-close="2026-08-26" data-posted=""><div class="role__id"><div class="role__title"><a href="https://www.myjobscotland.gov.uk/organisations/hillcrest-homes/jobs/project-and-support-specialist-484061" rel="noopener">Project and Support Specialist</a></div><div class="role__where"><b>Hillcrest Homes</b><span class="sep">/</span>1 Explorer Road, Dundee</div></div><div class="role__meta"><span class="role__salary">£38,161.67 - £42,831.52</span><span class="chip" data-chip></span></div></article>
-<article class="role" data-close="2026-08-26" data-posted=""><div class="role__id"><div class="role__title"><a href="https://apply.jobs.scot.nhs.uk/Job/JobDetail?JobId=261935" rel="noopener">Senior Project Manager</a></div><div class="role__where"><b>NHS Fife</b><span class="sep">/</span>Lynebank Hospital</div></div><div class="role__meta"><span class="role__salary">Band 7 (£52,845 - £61,466)</span><span class="chip" data-chip></span></div></article>
-<article class="role" data-close="" data-posted="2026-08-16"><div class="role__id"><div class="role__title"><a href="https://www.adzuna.co.uk/jobs/details/5844312768?utm_medium=api" rel="noopener">Transformation Delivery Manager (12 Month FTC)</a></div><div class="role__where"><b>RTX</b><span class="sep">/</span>Glenrothes, Fife</div></div><div class="role__meta"><span class="role__salary">£67,743</span><span class="chip" data-chip></span></div></article>
-<article class="role" data-close="2026-09-10" data-posted=""><div class="role__id"><div class="role__title"><a href="https://www.jobs.ac.uk/job/DSQ497/project-manager" rel="noopener">Project Manager</a></div><div class="role__where"><b>The University of Edinburgh</b><span class="sep">/</span>Edinburgh, Hybrid</div></div><div class="role__meta"><span class="role__salary">£50,253 to £61,759 per annum, UE08</span><span class="chip" data-chip></span></div></article>
-</section>
-<section class="lane"><div class="lane__head"><h2 class="lane__name">Digital &amp; technology</h2><span class="lane__count">3 roles</span></div>
-<article class="role" data-close="" data-posted="2026-08-07"><div class="role__id"><div class="role__title"><a href="https://www.adzuna.co.uk/jobs/land/ad/5832282586?se=hEL075ib8RGFkPNsWSdUcg&amp;utm_medium=api&amp;&amp;v=40EFFB97508B1263CBFA48A2C853DA02A83AB991" rel="noopener">IT Officer (Cyber Security)</a></div><div class="role__where"><b>Dundee City Council</b><span class="sep">/</span>Dundee, Scotland</div></div><div class="role__meta"><span class="role__salary">£40,001 - £50,000</span><span class="chip" data-chip></span></div></article>
-<article class="role" data-close="" data-posted="2026-07-31"><div class="role__id"><div class="role__title"><a href="https://www.adzuna.co.uk/jobs/land/ad/5822390565?se=oIwH9Jib8RGoWYYErAA3fQ&amp;utm_medium=api&amp;&amp;v=E2955E348ECECCAC5DD7EB3F4D1B4C82235FC151" rel="noopener">Deskside &amp; Field IT Support Engineer</a></div><div class="role__where"><b>Galaxi Consulting</b><span class="sep">/</span>Caputh, Perth</div></div><div class="role__meta"><span class="role__salary">£44,200 - £46,800</span><span class="chip" data-chip></span></div></article>
-<article class="role" data-close="" data-posted="2026-08-19"><div class="role__id"><div class="role__title"><a href="https://www.adzuna.co.uk/jobs/details/5847676716?utm_medium=api" rel="noopener">Service Delivery Analyst</a></div><div class="role__where"><b>Insights Learning &amp; Development Ltd</b><span class="sep">/</span>Dundee, Scotland</div></div><div class="role__meta"><span class="role__salary">£40,683</span><span class="chip" data-chip></span></div></article>
-</section>
-<section class="lane"><div class="lane__head"><h2 class="lane__name">Operations &amp; service management</h2><span class="lane__count">4 roles</span></div>
-<article class="role" data-close="" data-posted="2026-08-13"><div class="role__id"><div class="role__title"><a href="https://www.adzuna.co.uk/jobs/land/ad/5839115052?se=1jUGHJib8RGoWYYErAA3fQ&amp;utm_medium=api&amp;&amp;v=9B6BA4024BD7493C5B99D75174AAA45CE69761E7" rel="noopener">Senior Customer Analyst</a></div><div class="role__where"><b>Specsavers</b><span class="sep">/</span>St. Andrews, Fife</div><div class="flags"><span class="flag flag--new">New</span></div></div><div class="role__meta"><span class="role__salary">£62,000</span><span class="chip" data-chip></span></div></article>
-<article class="role" data-close="" data-posted="2026-08-13"><div class="role__id"><div class="role__title"><a href="https://www.adzuna.co.uk/jobs/details/5840648656?utm_medium=api" rel="noopener">Service Delivery Technician - 2019</a></div><div class="role__where"><b>Circet Ireland &amp; UK</b><span class="sep">/</span>Dundee, Scotland</div></div><div class="role__meta"><span class="role__salary">£33,236</span><span class="chip" data-chip></span></div></article>
-<article class="role" data-close="" data-posted="2026-07-22"><div class="role__id"><div class="role__title"><a href="https://www.adzuna.co.uk/jobs/details/5810679889?utm_medium=api" rel="noopener">Senior Game Security Operations Manager</a></div><div class="role__where"><b>Rockstar Games</b><span class="sep">/</span>Dundee, Scotland</div></div><div class="role__meta"><span class="role__salary">£50,011</span><span class="chip" data-chip></span></div></article>
-<article class="role" data-close="2026-09-09" data-posted=""><div class="role__id"><div class="role__title"><a href="https://www.myjobscotland.gov.uk/adult-care/richmond-fellowship-scotland/jobs/team-leader-483921" rel="noopener">Team Leader</a></div><div class="role__where"><b>The Richmond Fellowship Scotland</b><span class="sep">/</span>Buckhaven, Fife</div></div><div class="role__meta"><span class="role__salary">£34,649 - £36,822</span><span class="chip" data-chip></span></div></article>
-</section>
-<section class="lane"><div class="lane__head"><h2 class="lane__name">Quality &amp; governance</h2><span class="lane__count">2 roles</span></div>
-<article class="role" data-close="2026-08-30" data-posted=""><div class="role__id"><div class="role__title"><a href="https://www.myjobscotland.gov.uk/councils/angus-council/jobs/paralegal-information-governance-483062" rel="noopener">Paralegal (Information Governance)</a></div><div class="role__where"><b>Angus Council</b><span class="sep">/</span>Angus House, Forfar</div></div><div class="role__meta"><span class="role__salary">£35,155 - £39,048</span><span class="chip" data-chip></span></div></article>
-<article class="role" data-close="2026-09-03" data-posted=""><div class="role__id"><div class="role__title"><a href="https://www.jobs.ac.uk/job/DSP253/quality-assurance-and-regulation-manager" rel="noopener">Quality Assurance &amp; Regulation Manager</a></div><div class="role__where"><b>ICAS</b><span class="sep">/</span>Edinburgh, Hybrid</div></div><div class="role__meta"><span class="role__salary">£40,750 to £53,000</span><span class="chip" data-chip></span></div></article>
-</section>
-<section class="lane"><div class="lane__head"><h2 class="lane__name">Data &amp; analysis</h2><span class="lane__count">1 role</span></div>
-<article class="role" data-close="" data-posted="2026-07-31"><div class="role__id"><div class="role__title"><a href="https://www.adzuna.co.uk/jobs/details/5821727302?utm_medium=api" rel="noopener">Data Analyst - FTC</a></div><div class="role__where"><b>Bright Purple Resourcing</b><span class="sep">/</span>St. Andrews, Fife</div></div><div class="role__meta"><span class="role__salary">£45,000</span><span class="chip" data-chip></span></div></article>
-</section>
-<section class="lane"><div class="lane__head"><h2 class="lane__name">Research, policy &amp; insight</h2><span class="lane__count">2 roles</span></div>
-<article class="role" data-close="2026-10-14" data-posted=""><div class="role__id"><div class="role__title"><a href="https://www.jobs.ac.uk/job/DSP731/research-officer" rel="noopener">Research Officer</a></div><div class="role__where"><b>Venesky-Brown</b><span class="sep">/</span>Edinburgh, Hybrid</div></div><div class="role__meta"><span class="role__salary">£194.38/day (Outside IR35)</span><span class="chip" data-chip></span></div></article>
-<article class="role" data-close="2026-10-14" data-posted=""><div class="role__id"><div class="role__title"><a href="https://www.jobs.ac.uk/job/DSP732/research-officer-data-analyst" rel="noopener">Research Officer (Data Analyst)</a></div><div class="role__where"><b>Venesky-Brown</b><span class="sep">/</span>Edinburgh, Hybrid</div></div><div class="role__meta"><span class="role__salary">£194.38/day (Outside IR35)</span><span class="chip" data-chip></span></div></article>
-</section>
-<section class="lane"><div class="lane__head"><h2 class="lane__name">Housing, planning &amp; sustainability</h2><span class="lane__count">1 role</span></div>
-<article class="role" data-close="2026-09-01" data-posted=""><div class="role__id"><div class="role__title"><a href="https://www.jobs.ac.uk/job/DSK679/lecturer-in-geography-and-or-sustainable-development-ac2883" rel="noopener">Lecturer in Geography and/or Sustainable Development</a></div><div class="role__where"><b>University of St Andrews</b><span class="sep">/</span>St Andrews</div></div><div class="role__meta"><span class="role__salary">£47,389 to £58,226</span><span class="chip" data-chip></span></div></article>
-</section>
-<section class="lane"><div class="lane__head"><h2 class="lane__name">Charity &amp; third sector</h2><span class="lane__count">1 role</span></div>
-<article class="role" data-close="2026-09-16" data-posted=""><div class="role__id"><div class="role__title"><a href="https://www.jobs.ac.uk/job/DSI947/innovation-and-enterprise-development-manager" rel="noopener">Innovation &amp; Enterprise Development Manager</a></div><div class="role__where"><b>Abertay University</b><span class="sep">/</span>Dundee</div></div><div class="role__meta"><span class="role__salary">£47,389.29 to £56,535.57 Grade 8</span><span class="chip" data-chip></span></div></article>
-</section>
+  <div class="toolbar">
+    <div class="field" style="flex:1 1 190px;">
+      <label for="q">Search</label>
+      <input type="search" id="q" placeholder="title, employer or town"
+             autocomplete="off" spellcheck="false">
+    </div>
+    <div class="field">
+      <label for="lane">Area</label>
+      <select id="lane">
+        <option value="">All areas</option>
+<option value="project_programme">Project & programme delivery (7)</option>
+<option value="digital_it">Digital & technology (8)</option>
+<option value="operations_service">Operations & service management (5)</option>
+<option value="quality_governance">Quality & governance (3)</option>
+<option value="data_performance">Data & analysis (4)</option>
+<option value="research_insight">Research, policy & insight (2)</option>
+<option value="housing_planning">Housing, planning & sustainability (2)</option>
+<option value="third_sector">Charity & third sector (2)</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="sort">Sort</label>
+      <select id="sort">
+        <option value="default">Newest first</option>
+        <option value="closing">Closing soonest</option>
+        <option value="salary">Highest salary</option>
+        <option value="employer">Employer A&ndash;Z</option>
+      </select>
+    </div>
+    <button type="button" class="reset" id="reset" hidden>Clear filters</button>
+    <div class="count" id="count" role="status" aria-live="polite"></div>
+  </div>
+
+  <div>
+    <div class="list" id="list">
+<article class="role" data-lane="project_programme" data-new="1" data-close="2026-08-30" data-posted="" data-salary="61466" data-text="national programme delivery and engagement manager public services delivery scotland flexible location"><div class="role__id"><div class="role__title"><a href="https://apply.jobs.scot.nhs.uk/Job/JobDetail?JobId=265635" rel="noopener">National Programme Delivery and Engagement Manager</a></div><div class="role__where"><b>Public Services Delivery Scotland</b><span class="sep">/</span>Flexible Location</div><div class="flags"><span class="tag">Project &amp; programme delivery</span><span class="flag flag--new">New</span></div></div><div class="role__meta"><span class="role__salary">Band 7 (£52,845 - £61,466)</span><span class="chip" data-chip></span></div></article>
+<article class="role" data-lane="project_programme" data-new="1" data-close="" data-posted="2026-08-15" data-salary="43870" data-text="project registrar v&amp;a dundee dundee, scotland"><div class="role__id"><div class="role__title"><a href="https://www.adzuna.co.uk/jobs/details/5843170930?utm_medium=api" rel="noopener">Project Registrar</a></div><div class="role__where"><b>V&amp;A Dundee</b><span class="sep">/</span>Dundee, Scotland</div><div class="flags"><span class="tag">Project &amp; programme delivery</span><span class="flag flag--new">New</span></div></div><div class="role__meta"><span class="role__salary">£43,870</span><span class="chip" data-chip></span></div></article>
+<article class="role" data-lane="digital_it" data-new="1" data-close="" data-posted="2026-07-30" data-salary="40000" data-text="technology strategy partner 1 office technologies dundee, scotland"><div class="role__id"><div class="role__title"><a href="https://www.adzuna.co.uk/jobs/land/ad/5821653217?se=XLa7aZ2b8RGofthPKnR1kQ&amp;utm_medium=api&amp;&amp;v=A01A2A1179C1FF8A54F640FBE94624297A1FF353" rel="noopener">Technology Strategy Partner</a></div><div class="role__where"><b>1 Office Technologies</b><span class="sep">/</span>Dundee, Scotland</div><div class="flags"><span class="tag">Digital &amp; technology</span><span class="flag flag--new">New</span></div></div><div class="role__meta"><span class="role__salary">£40,000</span><span class="chip" data-chip></span></div></article>
+<article class="role" data-lane="digital_it" data-new="1" data-close="2026-08-19" data-posted="" data-salary="56535" data-text="senior infrastructure specialist (microsoft 365) abertay university dundee"><div class="role__id"><div class="role__title"><a href="https://www.jobs.ac.uk/job/DSI655/senior-infrastructure-specialist-microsoft-365" rel="noopener">Senior Infrastructure Specialist (Microsoft 365)</a></div><div class="role__where"><b>Abertay University</b><span class="sep">/</span>Dundee</div><div class="flags"><span class="tag">Digital &amp; technology</span><span class="flag flag--new">New</span></div></div><div class="role__meta"><span class="role__salary">£47,389.29 to £56,535.57 (Grade 8)</span><span class="chip" data-chip></span></div></article>
+<article class="role" data-lane="digital_it" data-new="1" data-close="" data-posted="2026-06-08" data-salary="46526" data-text="audit manager bk plus dundee, scotland"><div class="role__id"><div class="role__title"><a href="https://www.adzuna.co.uk/jobs/details/5756452106?utm_medium=api" rel="noopener">Audit Manager</a></div><div class="role__where"><b>bk plus</b><span class="sep">/</span>Dundee, Scotland</div><div class="flags"><span class="tag">Digital &amp; technology</span><span class="flag flag--new">New</span></div></div><div class="role__meta"><span class="role__salary">£46,526</span><span class="chip" data-chip></span></div></article>
+<article class="role" data-lane="digital_it" data-new="1" data-close="2026-08-31" data-posted="" data-salary="63390" data-text="ict technical design lead (2 posts), flexible location (any highland council office) highland council "><div class="role__id"><div class="role__title"><a href="https://www.myjobscotland.gov.uk/councils/highland-council/jobs/ict-technical-design-lead-2-posts-flexible-location-any-highland-council-office-472394" rel="noopener">ICT Technical Design Lead (2 Posts), Flexible Location (Any Highland Council Office)</a></div><div class="role__where"><b>Highland Council</b><span class="sep">/</span></div><div class="flags"><span class="tag">Digital &amp; technology</span><span class="flag flag--new">New</span></div></div><div class="role__meta"><span class="role__salary">£57,948 - £63,390</span><span class="chip" data-chip></span></div></article>
+<article class="role" data-lane="digital_it" data-new="1" data-close="" data-posted="2026-08-07" data-salary="58467" data-text="it manager kohler co. st. andrews, fife"><div class="role__id"><div class="role__title"><a href="https://www.adzuna.co.uk/jobs/details/5831335946?utm_medium=api" rel="noopener">IT Manager</a></div><div class="role__where"><b>Kohler Co.</b><span class="sep">/</span>St. Andrews, Fife</div><div class="flags"><span class="tag">Digital &amp; technology</span><span class="flag flag--new">New</span></div></div><div class="role__meta"><span class="role__salary">£58,467</span><span class="chip" data-chip></span></div></article>
+<article class="role" data-lane="operations_service" data-new="1" data-close="" data-posted="2026-07-31" data-salary="53220" data-text="head of customer care persimmon homes aberdalgie, perth"><div class="role__id"><div class="role__title"><a href="https://www.adzuna.co.uk/jobs/land/ad/5822250813?se=LrNreJyb8RGofthPKnR1kQ&amp;utm_medium=api&amp;&amp;v=DB85C08C7C4B231D12A40CD132127F0B87EA83AA" rel="noopener">Head of Customer Care</a></div><div class="role__where"><b>Persimmon Homes</b><span class="sep">/</span>Aberdalgie, Perth</div><div class="flags"><span class="tag">Operations &amp; service management</span><span class="flag flag--new">New</span></div></div><div class="role__meta"><span class="role__salary">£53,220</span><span class="chip" data-chip></span></div></article>
+<article class="role" data-lane="operations_service" data-new="1" data-close="" data-posted="2026-08-13" data-salary="62000" data-text="senior customer analyst specsavers st. andrews, fife"><div class="role__id"><div class="role__title"><a href="https://www.adzuna.co.uk/jobs/land/ad/5839115052?se=Bn8cfpyb8RG8W-5OjdaJAA&amp;utm_medium=api&amp;&amp;v=9B6BA4024BD7493C5B99D75174AAA45CE69761E7" rel="noopener">Senior Customer Analyst</a></div><div class="role__where"><b>Specsavers</b><span class="sep">/</span>St. Andrews, Fife</div><div class="flags"><span class="tag">Operations &amp; service management</span><span class="flag flag--new">New</span></div></div><div class="role__meta"><span class="role__salary">£62,000</span><span class="chip" data-chip></span></div></article>
+<article class="role" data-lane="quality_governance" data-new="1" data-close="" data-posted="2026-08-06" data-salary="47455" data-text="head of data protection dc thomson dundee, scotland"><div class="role__id"><div class="role__title"><a href="https://www.adzuna.co.uk/jobs/details/5830410087?utm_medium=api" rel="noopener">Head of Data Protection</a></div><div class="role__where"><b>DC Thomson</b><span class="sep">/</span>Dundee, Scotland</div><div class="flags"><span class="tag">Quality &amp; governance</span><span class="flag flag--new">New</span></div></div><div class="role__meta"><span class="role__salary">£47,455</span><span class="chip" data-chip></span></div></article>
+<article class="role" data-lane="data_performance" data-new="1" data-close="" data-posted="2026-07-29" data-salary="42177" data-text="reporting &amp; insights analyst - ftc bright purple resourcing cupar, fife"><div class="role__id"><div class="role__title"><a href="https://www.adzuna.co.uk/jobs/details/5819015804?utm_medium=api" rel="noopener">Reporting &amp; Insights Analyst - FTC</a></div><div class="role__where"><b>Bright Purple Resourcing</b><span class="sep">/</span>Cupar, Fife</div><div class="flags"><span class="tag">Data &amp; analysis</span><span class="flag flag--new">New</span></div></div><div class="role__meta"><span class="role__salary">£42,177</span><span class="chip" data-chip></span></div></article>
+<article class="role" data-lane="data_performance" data-new="1" data-close="" data-posted="2026-08-18" data-salary="38054" data-text="business ops analyst ncr atleos dundee, scotland"><div class="role__id"><div class="role__title"><a href="https://www.adzuna.co.uk/jobs/details/5846916986?utm_medium=api" rel="noopener">Business Ops Analyst</a></div><div class="role__where"><b>NCR Atleos</b><span class="sep">/</span>Dundee, Scotland</div><div class="flags"><span class="tag">Data &amp; analysis</span><span class="flag flag--new">New</span></div></div><div class="role__meta"><span class="role__salary">£38,054</span><span class="chip" data-chip></span></div></article>
+<article class="role" data-lane="data_performance" data-new="1" data-close="2026-08-23" data-posted="" data-salary="50773" data-text="performance &amp; data analysis officer, 2 high street, perth perth and kinross council perth and kinross council, 2 high street, perth, ph1 5ph, united kingdom"><div class="role__id"><div class="role__title"><a href="https://www.myjobscotland.gov.uk/councils/perth-and-kinross-council/jobs/performance-data-analysis-officer-2-high-street-perth-483531" rel="noopener">Performance &amp; Data Analysis Officer, 2 High Street, Perth</a></div><div class="role__where"><b>Perth and Kinross Council</b><span class="sep">/</span>Perth and Kinross Council, 2 High Street, Perth, PH1 5PH, United Kingdom</div><div class="flags"><span class="tag">Data &amp; analysis</span><span class="flag flag--new">New</span></div></div><div class="role__meta"><span class="role__salary">£47,061 - £50,773</span><span class="chip" data-chip></span></div></article>
+<article class="role" data-lane="housing_planning" data-new="1" data-close="" data-posted="2026-08-17" data-salary="28891" data-text="housing officer pinnacle group leuchars, st. andrews"><div class="role__id"><div class="role__title"><a href="https://www.adzuna.co.uk/jobs/details/5845126058?utm_medium=api" rel="noopener">Housing Officer</a></div><div class="role__where"><b>Pinnacle Group</b><span class="sep">/</span>Leuchars, St. Andrews</div><div class="flags"><span class="tag">Housing, planning &amp; sustainability</span><span class="flag flag--new">New</span></div></div><div class="role__meta"><span class="role__salary">£28,891</span><span class="chip" data-chip></span></div></article>
+<article class="role" data-lane="third_sector" data-new="1" data-close="2026-08-24" data-posted="" data-salary="55894" data-text="head of centre, big noise douglas, dundee sistema scotland douglas community centre, balmoral avenue, dundee, douglas"><div class="role__id"><div class="role__title"><a href="https://www.myjobscotland.gov.uk/organisations/sistema-scotland/jobs/head-centre-big-noise-douglas-dundee-483956" rel="noopener">Head of Centre, Big Noise Douglas, Dundee</a></div><div class="role__where"><b>Sistema Scotland</b><span class="sep">/</span>Douglas Community Centre, Balmoral Avenue, Dundee, Douglas</div><div class="flags"><span class="tag">Charity &amp; third sector</span><span class="flag flag--new">New</span></div></div><div class="role__meta"><span class="role__salary">£51,805 - £55,894</span><span class="chip" data-chip></span></div></article>
+<article class="role" data-lane="project_programme" data-new="0" data-close="" data-posted="2026-07-22" data-salary="51638" data-text="project manager bright purple resourcing st. andrews, fife"><div class="role__id"><div class="role__title"><a href="https://www.adzuna.co.uk/jobs/details/5810043095?utm_medium=api" rel="noopener">Project Manager</a></div><div class="role__where"><b>Bright Purple Resourcing</b><span class="sep">/</span>St. Andrews, Fife</div><div class="flags"><span class="tag">Project &amp; programme delivery</span></div></div><div class="role__meta"><span class="role__salary">£51,638</span><span class="chip" data-chip></span></div></article>
+<article class="role" data-lane="project_programme" data-new="0" data-close="2026-08-26" data-posted="" data-salary="42831" data-text="project and support specialist hillcrest homes 1 explorer road, dundee"><div class="role__id"><div class="role__title"><a href="https://www.myjobscotland.gov.uk/organisations/hillcrest-homes/jobs/project-and-support-specialist-484061" rel="noopener">Project and Support Specialist</a></div><div class="role__where"><b>Hillcrest Homes</b><span class="sep">/</span>1 Explorer Road, Dundee</div><div class="flags"><span class="tag">Project &amp; programme delivery</span></div></div><div class="role__meta"><span class="role__salary">£38,161.67 - £42,831.52</span><span class="chip" data-chip></span></div></article>
+<article class="role" data-lane="project_programme" data-new="0" data-close="2026-08-26" data-posted="" data-salary="61466" data-text="senior project manager nhs fife lynebank hospital"><div class="role__id"><div class="role__title"><a href="https://apply.jobs.scot.nhs.uk/Job/JobDetail?JobId=261935" rel="noopener">Senior Project Manager</a></div><div class="role__where"><b>NHS Fife</b><span class="sep">/</span>Lynebank Hospital</div><div class="flags"><span class="tag">Project &amp; programme delivery</span></div></div><div class="role__meta"><span class="role__salary">Band 7 (£52,845 - £61,466)</span><span class="chip" data-chip></span></div></article>
+<article class="role" data-lane="project_programme" data-new="0" data-close="" data-posted="2026-08-16" data-salary="67743" data-text="transformation delivery manager (12 month ftc) rtx glenrothes, fife"><div class="role__id"><div class="role__title"><a href="https://www.adzuna.co.uk/jobs/details/5844312768?utm_medium=api" rel="noopener">Transformation Delivery Manager (12 Month FTC)</a></div><div class="role__where"><b>RTX</b><span class="sep">/</span>Glenrothes, Fife</div><div class="flags"><span class="tag">Project &amp; programme delivery</span></div></div><div class="role__meta"><span class="role__salary">£67,743</span><span class="chip" data-chip></span></div></article>
+<article class="role" data-lane="project_programme" data-new="0" data-close="2026-09-10" data-posted="" data-salary="61759" data-text="project manager the university of edinburgh edinburgh, hybrid"><div class="role__id"><div class="role__title"><a href="https://www.jobs.ac.uk/job/DSQ497/project-manager" rel="noopener">Project Manager</a></div><div class="role__where"><b>The University of Edinburgh</b><span class="sep">/</span>Edinburgh, Hybrid</div><div class="flags"><span class="tag">Project &amp; programme delivery</span></div></div><div class="role__meta"><span class="role__salary">£50,253 to £61,759 per annum, UE08</span><span class="chip" data-chip></span></div></article>
+<article class="role" data-lane="digital_it" data-new="0" data-close="" data-posted="2026-08-07" data-salary="50000" data-text="it officer (cyber security) dundee city council dundee, scotland"><div class="role__id"><div class="role__title"><a href="https://www.adzuna.co.uk/jobs/land/ad/5832282586?se=XLa7aZ2b8RGofthPKnR1kQ&amp;utm_medium=api&amp;&amp;v=40EFFB97508B1263CBFA48A2C853DA02A83AB991" rel="noopener">IT Officer (Cyber Security)</a></div><div class="role__where"><b>Dundee City Council</b><span class="sep">/</span>Dundee, Scotland</div><div class="flags"><span class="tag">Digital &amp; technology</span></div></div><div class="role__meta"><span class="role__salary">£40,001 - £50,000</span><span class="chip" data-chip></span></div></article>
+<article class="role" data-lane="digital_it" data-new="0" data-close="" data-posted="2026-07-31" data-salary="46800" data-text="deskside &amp; field it support engineer galaxi consulting caputh, perth"><div class="role__id"><div class="role__title"><a href="https://www.adzuna.co.uk/jobs/land/ad/5822390565?se=Ho1-bZ2b8RG9npSBiR6OzQ&amp;utm_medium=api&amp;&amp;v=E2955E348ECECCAC5DD7EB3F4D1B4C82235FC151" rel="noopener">Deskside &amp; Field IT Support Engineer</a></div><div class="role__where"><b>Galaxi Consulting</b><span class="sep">/</span>Caputh, Perth</div><div class="flags"><span class="tag">Digital &amp; technology</span></div></div><div class="role__meta"><span class="role__salary">£44,200 - £46,800</span><span class="chip" data-chip></span></div></article>
+<article class="role" data-lane="digital_it" data-new="0" data-close="" data-posted="2026-08-19" data-salary="40683" data-text="service delivery analyst insights learning &amp; development ltd dundee, scotland"><div class="role__id"><div class="role__title"><a href="https://www.adzuna.co.uk/jobs/details/5847676716?utm_medium=api" rel="noopener">Service Delivery Analyst</a></div><div class="role__where"><b>Insights Learning &amp; Development Ltd</b><span class="sep">/</span>Dundee, Scotland</div><div class="flags"><span class="tag">Digital &amp; technology</span></div></div><div class="role__meta"><span class="role__salary">£40,683</span><span class="chip" data-chip></span></div></article>
+<article class="role" data-lane="operations_service" data-new="0" data-close="" data-posted="2026-08-13" data-salary="33236" data-text="service delivery technician - 2019 circet ireland &amp; uk dundee, scotland"><div class="role__id"><div class="role__title"><a href="https://www.adzuna.co.uk/jobs/details/5840648656?utm_medium=api" rel="noopener">Service Delivery Technician - 2019</a></div><div class="role__where"><b>Circet Ireland &amp; UK</b><span class="sep">/</span>Dundee, Scotland</div><div class="flags"><span class="tag">Operations &amp; service management</span></div></div><div class="role__meta"><span class="role__salary">£33,236</span><span class="chip" data-chip></span></div></article>
+<article class="role" data-lane="operations_service" data-new="0" data-close="" data-posted="2026-07-22" data-salary="50011" data-text="senior game security operations manager rockstar games dundee, scotland"><div class="role__id"><div class="role__title"><a href="https://www.adzuna.co.uk/jobs/details/5810679889?utm_medium=api" rel="noopener">Senior Game Security Operations Manager</a></div><div class="role__where"><b>Rockstar Games</b><span class="sep">/</span>Dundee, Scotland</div><div class="flags"><span class="tag">Operations &amp; service management</span></div></div><div class="role__meta"><span class="role__salary">£50,011</span><span class="chip" data-chip></span></div></article>
+<article class="role" data-lane="operations_service" data-new="0" data-close="2026-09-09" data-posted="" data-salary="36822" data-text="team leader the richmond fellowship scotland buckhaven, fife"><div class="role__id"><div class="role__title"><a href="https://www.myjobscotland.gov.uk/adult-care/richmond-fellowship-scotland/jobs/team-leader-483921" rel="noopener">Team Leader</a></div><div class="role__where"><b>The Richmond Fellowship Scotland</b><span class="sep">/</span>Buckhaven, Fife</div><div class="flags"><span class="tag">Operations &amp; service management</span></div></div><div class="role__meta"><span class="role__salary">£34,649 - £36,822</span><span class="chip" data-chip></span></div></article>
+<article class="role" data-lane="quality_governance" data-new="0" data-close="2026-08-30" data-posted="" data-salary="39048" data-text="paralegal (information governance) angus council angus house, forfar"><div class="role__id"><div class="role__title"><a href="https://www.myjobscotland.gov.uk/councils/angus-council/jobs/paralegal-information-governance-483062" rel="noopener">Paralegal (Information Governance)</a></div><div class="role__where"><b>Angus Council</b><span class="sep">/</span>Angus House, Forfar</div><div class="flags"><span class="tag">Quality &amp; governance</span></div></div><div class="role__meta"><span class="role__salary">£35,155 - £39,048</span><span class="chip" data-chip></span></div></article>
+<article class="role" data-lane="quality_governance" data-new="0" data-close="2026-09-03" data-posted="" data-salary="53000" data-text="quality assurance &amp; regulation manager icas edinburgh, hybrid"><div class="role__id"><div class="role__title"><a href="https://www.jobs.ac.uk/job/DSP253/quality-assurance-and-regulation-manager" rel="noopener">Quality Assurance &amp; Regulation Manager</a></div><div class="role__where"><b>ICAS</b><span class="sep">/</span>Edinburgh, Hybrid</div><div class="flags"><span class="tag">Quality &amp; governance</span></div></div><div class="role__meta"><span class="role__salary">£40,750 to £53,000</span><span class="chip" data-chip></span></div></article>
+<article class="role" data-lane="data_performance" data-new="0" data-close="" data-posted="2026-07-31" data-salary="45000" data-text="data analyst - ftc bright purple resourcing st. andrews, fife"><div class="role__id"><div class="role__title"><a href="https://www.adzuna.co.uk/jobs/details/5821727302?utm_medium=api" rel="noopener">Data Analyst - FTC</a></div><div class="role__where"><b>Bright Purple Resourcing</b><span class="sep">/</span>St. Andrews, Fife</div><div class="flags"><span class="tag">Data &amp; analysis</span></div></div><div class="role__meta"><span class="role__salary">£45,000</span><span class="chip" data-chip></span></div></article>
+<article class="role" data-lane="research_insight" data-new="0" data-close="2026-10-14" data-posted="" data-salary="42763" data-text="research officer venesky-brown edinburgh, hybrid"><div class="role__id"><div class="role__title"><a href="https://www.jobs.ac.uk/job/DSP731/research-officer" rel="noopener">Research Officer</a></div><div class="role__where"><b>Venesky-Brown</b><span class="sep">/</span>Edinburgh, Hybrid</div><div class="flags"><span class="tag">Research, policy &amp; insight</span></div></div><div class="role__meta"><span class="role__salary">£194.38/day (Outside IR35)</span><span class="chip" data-chip></span></div></article>
+<article class="role" data-lane="research_insight" data-new="0" data-close="2026-10-14" data-posted="" data-salary="42763" data-text="research officer (data analyst) venesky-brown edinburgh, hybrid"><div class="role__id"><div class="role__title"><a href="https://www.jobs.ac.uk/job/DSP732/research-officer-data-analyst" rel="noopener">Research Officer (Data Analyst)</a></div><div class="role__where"><b>Venesky-Brown</b><span class="sep">/</span>Edinburgh, Hybrid</div><div class="flags"><span class="tag">Research, policy &amp; insight</span></div></div><div class="role__meta"><span class="role__salary">£194.38/day (Outside IR35)</span><span class="chip" data-chip></span></div></article>
+<article class="role" data-lane="housing_planning" data-new="0" data-close="2026-09-01" data-posted="" data-salary="58226" data-text="lecturer in geography and/or sustainable development university of st andrews st andrews"><div class="role__id"><div class="role__title"><a href="https://www.jobs.ac.uk/job/DSK679/lecturer-in-geography-and-or-sustainable-development-ac2883" rel="noopener">Lecturer in Geography and/or Sustainable Development</a></div><div class="role__where"><b>University of St Andrews</b><span class="sep">/</span>St Andrews</div><div class="flags"><span class="tag">Housing, planning &amp; sustainability</span></div></div><div class="role__meta"><span class="role__salary">£47,389 to £58,226</span><span class="chip" data-chip></span></div></article>
+<article class="role" data-lane="third_sector" data-new="0" data-close="2026-09-16" data-posted="" data-salary="56535" data-text="innovation &amp; enterprise development manager abertay university dundee"><div class="role__id"><div class="role__title"><a href="https://www.jobs.ac.uk/job/DSI947/innovation-and-enterprise-development-manager" rel="noopener">Innovation &amp; Enterprise Development Manager</a></div><div class="role__where"><b>Abertay University</b><span class="sep">/</span>Dundee</div><div class="flags"><span class="tag">Charity &amp; third sector</span></div></div><div class="role__meta"><span class="role__salary">£47,389.29 to £56,535.57 Grade 8</span><span class="chip" data-chip></span></div></article>
+    </div>
+    <div class="empty" id="empty" hidden>Nothing matches those filters.</div>
+    <nav class="pager" id="pager" aria-label="Pages" hidden></nav>
+  </div>
 
   <section class="note">
     <h2>What this does not cover</h2>
@@ -167,52 +258,61 @@
       searching, so set an alert up directly at civilservicejobs.service.gov.uk.
     </p>
     <p>
-      Adzuna listings show a posted date rather than a closing date, because the
+      Adzuna listings show a posted date rather than a closing date, because those
       adverts do not carry one.
     </p>
   </section>
 
   <footer>
-    <div>Built 19 August 2026, 06:42. Vacancies close constantly; confirm on the advert before applying.</div>
+    <div>Built 19 August 2026, 07:15. Vacancies close constantly; confirm on the advert before applying.</div>
     <div>Scanned four times a day and rebuilt automatically. New roles are emailed as they appear.</div>
   </footer>
 </div>
 <script>
 (function () {
-  var DAY = 86400000, today = new Date();
-  today.setHours(0,0,0,0);
+  var PER_PAGE = 12, DAY = 86400000;
   var M = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  var urgent = 0;
-  document.querySelectorAll(".role").forEach(function (role) {
+  var today = new Date(); today.setHours(0,0,0,0);
+
+  var list = document.getElementById("list");
+  var all = Array.prototype.slice.call(list.querySelectorAll(".role"));
+  var q = document.getElementById("q");
+  var lane = document.getElementById("lane");
+  var sort = document.getElementById("sort");
+  var reset = document.getElementById("reset");
+  var count = document.getElementById("count");
+  var empty = document.getElementById("empty");
+  var pager = document.getElementById("pager");
+  var page = 1, urgent = 0;
+
+  all.forEach(function (role, i) {
+    role.dataset.order = i;
     var chip = role.querySelector("[data-chip]");
-    if (!chip) return;
     var iso = role.getAttribute("data-close");
     var posted = role.getAttribute("data-posted");
+    role.dataset.days = "99999";
     if (iso) {
       var p = iso.split("-");
-      var close = new Date(+p[0], +p[1]-1, +p[2]);
-      close.setHours(0,0,0,0);
+      var close = new Date(+p[0], +p[1]-1, +p[2]); close.setHours(0,0,0,0);
       var days = Math.round((close - today) / DAY);
+      role.dataset.days = String(days < 0 ? 88888 : days);
       if (days < 0) {
         chip.textContent = "closed";
-        chip.classList.add("chip--closed");
-        role.classList.add("role--closed");
+        chip.classList.add("chip--closed"); role.classList.add("role--closed");
       } else if (days === 0) {
         chip.textContent = "closes today"; chip.classList.add("chip--urgent"); urgent++;
       } else if (days <= 3) {
         chip.textContent = days + (days === 1 ? " day left" : " days left");
         chip.classList.add("chip--urgent"); urgent++;
       } else if (days <= 10) {
-        chip.textContent = days + " days left";
-        chip.classList.add("chip--soon");
+        chip.textContent = days + " days left"; chip.classList.add("chip--soon");
         if (days <= 7) urgent++;
       } else {
         chip.textContent = "closes " + close.getDate() + " " + M[close.getMonth()];
       }
     } else if (posted) {
-      var q = posted.split("-");
-      var put = new Date(+q[0], +q[1]-1, +q[2]);
-      put.setHours(0,0,0,0);
+      var r = posted.split("-");
+      var put = new Date(+r[0], +r[1]-1, +r[2]); put.setHours(0,0,0,0);
       var age = Math.round((today - put) / DAY);
       chip.textContent = age <= 0 ? "posted today"
         : "posted " + age + (age === 1 ? " day ago" : " days ago");
@@ -220,8 +320,107 @@
       chip.textContent = "no closing date";
     }
   });
-  var s = document.getElementById("stat-urgent");
-  if (s) s.textContent = urgent;
+  var su = document.getElementById("stat-urgent");
+  if (su) su.textContent = urgent;
+
+  function matching() {
+    var text = q.value.trim().toLowerCase();
+    var want = lane.value;
+    return all.filter(function (r) {
+      if (want && r.getAttribute("data-lane") !== want) return false;
+      if (text && r.getAttribute("data-text").indexOf(text) === -1) return false;
+      return true;
+    });
+  }
+
+  function ordered(rows) {
+    var mode = sort.value, copy = rows.slice();
+    if (mode === "closing") {
+      copy.sort(function (a, b) { return (+a.dataset.days) - (+b.dataset.days); });
+    } else if (mode === "salary") {
+      copy.sort(function (a, b) {
+        return (+b.getAttribute("data-salary")) - (+a.getAttribute("data-salary")); });
+    } else if (mode === "employer") {
+      copy.sort(function (a, b) {
+        var ea = a.querySelector(".role__where b").textContent.toLowerCase();
+        var eb = b.querySelector(".role__where b").textContent.toLowerCase();
+        return ea < eb ? -1 : ea > eb ? 1 : 0; });
+    } else {
+      copy.sort(function (a, b) { return (+a.dataset.order) - (+b.dataset.order); });
+    }
+    return copy;
+  }
+
+  function button(label, target, opts) {
+    var b = document.createElement("button");
+    b.type = "button"; b.textContent = label;
+    if (opts && opts.disabled) b.disabled = true;
+    if (opts && opts.current) b.setAttribute("aria-current", "true");
+    if (opts && opts.label) b.setAttribute("aria-label", opts.label);
+    b.addEventListener("click", function () {
+      page = target; render(true);
+      list.scrollIntoView({block: "start",
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "auto" : "smooth"});
+    });
+    return b;
+  }
+
+  function pages(total) {
+    pager.textContent = "";
+    if (total <= 1) { pager.hidden = true; return; }
+    pager.hidden = false;
+    pager.appendChild(button("Previous", Math.max(1, page - 1),
+      {disabled: page === 1, label: "Previous page"}));
+    var shown = [];
+    for (var i = 1; i <= total; i++) {
+      if (i === 1 || i === total || Math.abs(i - page) <= 1) shown.push(i);
+    }
+    var last = 0;
+    shown.forEach(function (i) {
+      if (last && i - last > 1) {
+        var g = document.createElement("span");
+        g.className = "gap"; g.textContent = "…"; pager.appendChild(g);
+      }
+      pager.appendChild(button(String(i), i, {current: i === page}));
+      last = i;
+    });
+    pager.appendChild(button("Next", Math.min(total, page + 1),
+      {disabled: page === total, label: "Next page"}));
+  }
+
+  function render(keepPage) {
+    var rows = ordered(matching());
+    var totalPages = Math.max(1, Math.ceil(rows.length / PER_PAGE));
+    if (!keepPage) page = 1;
+    if (page > totalPages) page = totalPages;
+
+    all.forEach(function (r) { r.hidden = true; });
+    var from = (page - 1) * PER_PAGE;
+    var slice = rows.slice(from, from + PER_PAGE);
+    slice.forEach(function (r) { r.hidden = false; list.appendChild(r); });
+
+    empty.hidden = rows.length !== 0;
+    if (rows.length === 0) {
+      count.textContent = "no matches";
+    } else if (rows.length <= PER_PAGE) {
+      count.textContent = rows.length + (rows.length === 1 ? " role" : " roles");
+    } else {
+      count.textContent = (from + 1) + "–" + (from + slice.length)
+        + " of " + rows.length;
+    }
+    reset.hidden = !(q.value.trim() || lane.value || sort.value !== "default");
+    pages(totalPages);
+  }
+
+  q.addEventListener("input", function () { render(false); });
+  lane.addEventListener("change", function () { render(false); });
+  sort.addEventListener("change", function () { render(false); });
+  reset.addEventListener("click", function () {
+    q.value = ""; lane.value = ""; sort.value = "default"; render(false); q.focus();
+  });
+
+  render(false);
 })();
 </script>
 </body>
